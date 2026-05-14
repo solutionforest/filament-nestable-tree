@@ -1,0 +1,44 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Models\YourModel;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use SolutionForest\FilamentNestableTree\Filament\Widgets\Tree;
+
+class {{ class }} extends Tree
+{
+    protected static ?int $sort = 1;
+
+    public function tree(\SolutionForest\FilamentNestableTree\Tree $tree): \SolutionForest\FilamentNestableTree\Tree
+    {
+        return $tree
+            ->model(YourModel::class)
+            ->labelField('name')
+            ->maxVisibleDepth(4)
+            ->searchable()
+            ->draggable()
+            ->nodeActions([
+                EditAction::make('edit_node')
+                    ->iconButton()->size('sm')
+                    ->form([
+                        TextInput::make('name')->required(),
+                    ])
+                    ->action(function (array $data, array $arguments): void {
+                        $record = YourModel::find($arguments['nodeId']);
+                        $record?->update($data);
+                    })
+                    ->after(fn () => $this->dispatch('tree-refresh')),
+
+                DeleteAction::make('delete_node')
+                    ->iconButton()->size('sm')
+                    ->action(function (array $arguments): void {
+                        $record = YourModel::find($arguments['nodeId']);
+                        $record?->delete();
+                    })
+                    ->after(fn () => $this->dispatch('tree-refresh')),
+            ]);
+    }
+}

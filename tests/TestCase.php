@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace SolutionForest\FilamentNestableTree\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
@@ -15,11 +15,13 @@ use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Kalnoy\Nestedset\NestedSetServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
-use VendorName\Skeleton\SkeletonServiceProvider;
+use SolutionForest\FilamentNestableTree\FilamentNestableTreeServiceProvider;
+use SolutionForest\FilamentNestableTree\Tests\Fixtures\Panels\AdminPanelProvider;
 
 class TestCase extends Orchestra
 {
@@ -31,7 +33,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn (string $modelName) => 'SolutionForest\\FilamentNestableTree\\Tests\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
@@ -39,6 +41,7 @@ class TestCase extends Orchestra
     {
         $providers = [
             ActionsServiceProvider::class,
+            AdminPanelProvider::class,
             BladeCaptureDirectiveServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
             BladeIconsServiceProvider::class,
@@ -46,12 +49,13 @@ class TestCase extends Orchestra
             FormsServiceProvider::class,
             InfolistsServiceProvider::class,
             LivewireServiceProvider::class,
+            NestedSetServiceProvider::class,
             NotificationsServiceProvider::class,
             SchemasServiceProvider::class,
             SupportServiceProvider::class,
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
-            SkeletonServiceProvider::class,
+            FilamentNestableTreeServiceProvider::class,
         ];
 
         sort($providers);
@@ -62,10 +66,18 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app): void
     {
         $app['config']->set('database.default', 'testing');
+        $app['config']->set('app.key', 'base64:' . base64_encode(random_bytes(32)));
+        $app['config']->set('auth.providers.users.model', Fixtures\Models\User::class);
     }
 
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        // Testbench users table (required for Filament auth).
+        $this->loadMigrationsFrom(
+            __DIR__ . '/../vendor/orchestra/testbench-core/laravel/migrations'
+        );
+
+        // Package-specific tables (categories, etc.).
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 }

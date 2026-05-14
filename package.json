@@ -2,11 +2,23 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "node bin/build.js --dev",
-        "build": "node bin/build.js"
+        "dev:scripts": "node bin/build.js --dev",
+        "dev:styles": "npx postcss resources/css/tree-view.css -o resources/dist/tree-view.css --watch",
+        "dev": "npm-run-all --parallel dev:*",
+        "build:scripts": "node bin/build.js",
+        "build:styles": "npx postcss resources/css/tree-view.css -o resources/dist/tree-view.css",
+        "build": "npm-run-all build:*"
     },
     "devDependencies": {
+        "@tailwindcss/postcss": "^4.2.4",
+        "cssnano": "^6.0.1",
         "esbuild": "^0.25.5",
-        "prettier": "^3.5.3"
+        "lightningcss": "^1.32.0",
+        "npm-run-all": "^4.1.5",
+        "postcss": "^8.4.27",
+        "postcss-cli": "^10.1.0",
+        "postcss-nesting": "^13.0.0",
+        "prettier": "^3.5.3",
+        "tailwindcss": "^4.2.4"
     }
 }

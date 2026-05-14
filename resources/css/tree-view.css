@@ -1,0 +1,314 @@
+@reference 'tailwindcss' source(none);
+
+/*
+ * Scan blade views so any Tailwind utility referenced there is included
+ * in the compiled dist file.
+ */
+@source "../views/**/*.blade.php";
+
+/* ── Search bar ─────────────────────────────────────────────── */
+.fi-tree-search {
+    @apply mb-3;
+}
+
+/* ── Node list ──────────────────────────────────────────────── */
+.fi-tree-node-list {
+    @apply space-y-1;
+}
+
+/* ── Node row ───────────────────────────────────────────────── */
+.fi-tree-node-row {
+    @apply flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm transition-colors cursor-default;
+    @apply bg-white hover:bg-gray-200 shadow-sm;
+    position: relative;
+}
+
+.dark .fi-tree-node-row {
+    background-color: var(--gray-800, '#1d1d1d');
+    @apply hover:bg-white/5;
+}
+
+/*
+ * Selected ring uses the Filament panel's primary color CSS var.
+ * Tailwind v4's --color-indigo-500 is the fallback when no panel var is set.
+ */
+.fi-tree-node-row--selected {
+    box-shadow: inset 0 0 0 1px
+        var(--primary-500, var(--color-indigo-500, '#3b82f6'));
+}
+
+.fi-tree-node-row--dragging {
+    @apply opacity-50;
+}
+
+/* ── Toggle button ──────────────────────────────────────────── */
+.fi-tree-node-toggle {
+    @apply flex-shrink-0 w-5 h-5 flex items-center justify-center rounded;
+    @apply border-none bg-transparent p-0 cursor-pointer focus:outline-none;
+    @apply text-gray-400 hover:text-gray-600;
+    position: relative;
+}
+.dark .fi-tree-node-toggle {
+    @apply text-gray-500 hover:text-gray-300;
+}
+
+.fi-tree-node-toggle--hidden {
+    @apply invisible;
+}
+
+/* ── Toggle icon ────────────────────────────────────────────── */
+.fi-tree-toggle-icon {
+    @apply w-4 h-4 transition-transform duration-150;
+}
+
+.fi-tree-toggle-icon--expanded {
+    @apply rotate-90;
+}
+
+/* ── Drag handle ────────────────────────────────────────────── */
+.fi-tree-drag-handle {
+    @apply flex-shrink-0 cursor-grab text-gray-300;
+}
+.dark .fi-tree-drag-handle {
+    @apply text-gray-600;
+}
+
+/* Brighten on row hover via plain CSS selector — avoids needing a `group` class */
+.fi-tree-node-row:hover .fi-tree-drag-handle {
+    @apply text-gray-400;
+}
+.dark .fi-tree-node-row:hover .fi-tree-drag-handle {
+    @apply text-gray-500;
+}
+
+.fi-tree-drag-handle svg {
+    @apply w-4 h-4;
+}
+
+/* ── Node label ─────────────────────────────────────────────── */
+.fi-tree-node-label {
+    @apply flex-1 truncate text-gray-950;
+}
+
+.dark .fi-tree-node-label {
+    @apply text-white;
+}
+
+/*
+ * Matched search text color.
+ * Falls back to Tailwind's indigo when no Filament panel var is present.
+ */
+.fi-tree-node-label--match {
+    color: var(--primary-600, var(--color-indigo-600, '#1e40af'));
+}
+
+.dark .fi-tree-node-label--match {
+    color: var(--primary-400, var(--color-indigo-400, '#60a5fa'));
+}
+
+/* ── Search highlight (injected by formatNodeText via x-html) ── */
+.fi-tree-highlight {
+    @apply bg-yellow-200 rounded px-0.5;
+}
+.dark .fi-tree-highlight {
+    @apply bg-yellow-800/50;
+}
+
+/* ── Node actions container ─────────────────────────────────── */
+.fi-tree-node-actions {
+    @apply flex items-center gap-x-1;
+    /* opacity-0 transition-opacity; */
+}
+
+.fi-tree-node-row:hover .fi-tree-node-actions {
+    /* @apply opacity-100; */
+}
+
+/* ── Empty state ────────────────────────────────────────────── */
+.fi-tree-empty-state {
+    @apply py-12 text-center text-sm text-gray-500;
+}
+.dark .fi-tree-empty-state {
+    @apply text-gray-400;
+}
+
+/* ── Collapsed parent with matching descendants (during search) ─ */
+.fi-tree-node-row--has-descendant-match .fi-tree-node-toggle {
+    color: var(--primary-500, var(--color-indigo-500));
+}
+
+.dark .fi-tree-node-row--has-descendant-match .fi-tree-node-toggle {
+    color: var(--primary-400, var(--color-indigo-400));
+}
+
+/* Small badge dot on the toggle button corner */
+.fi-tree-node-row--has-descendant-match .fi-tree-node-toggle::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background-color: var(--primary-500, var(--color-indigo-500));
+}
+
+.dark .fi-tree-node-row--has-descendant-match .fi-tree-node-toggle::after {
+    background-color: var(--primary-400, var(--color-indigo-400));
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.fi-tree-toolbar {
+    @apply flex items-center gap-x-2 mb-2;
+}
+
+.fi-tree-toolbar-btn {
+    @apply inline-flex items-center gap-x-1.5 rounded-md px-2 py-1 text-xs font-medium cursor-pointer;
+    @apply border transition-colors focus:outline-none hover:bg-gray-50;
+    color: var(--gray-600, var(--color-gray-600, '#4b5563'));
+    border-color: var(--gray-300, var(--color-gray-300, '#d1d5db'));
+    background-color: var(--white, '#ffffff');
+    &:hover {
+        background-color: var(--gray-200, var(--color-gray-200, '#e5e7eb'));
+    }
+}
+.dark .fi-tree-toolbar-btn {
+    border-color: var(--gray-600, var(--color-gray-600, '#4b5563'));
+    background-color: var(--gray-800, var(--color-gray-800, '#1d1d1d'));
+    color: var(--gray-400, var(--color-gray-400, '#9ca3af'));
+    &:hover {
+        background-color: var(--gray-700, var(--color-gray-700, '#374151'));
+    }
+}
+
+.fi-tree-toolbar-btn--active {
+    color: var(--primary-600, var(--color-indigo-600));
+    border-color: var(--primary-300, var(--color-indigo-300));
+    background-color: var(--primary-50, var(--color-indigo-50));
+    &:hover {
+        background-color: var(--primary-100, var(--color-indigo-100));
+    }
+}
+
+.dark .fi-tree-toolbar-btn--active {
+    color: var(--primary-400, var(--color-indigo-400));
+    border-color: var(--primary-700, var(--color-indigo-700));
+    background-color: color-mix(
+        in oklab,
+        var(--primary-900, var(--color-indigo-900)) 20%,
+        transparent
+    );
+    &:hover {
+        background-color: color-mix(
+            in oklab,
+            var(--primary-700, var(--color-indigo-700)) 20%,
+            transparent
+        );
+    }
+}
+
+.fi-tree-toolbar-btn-icon {
+    display: inline-flex;
+    align-items: center;
+
+    & svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+/* ── Drop-position indicators ────────────────────────────────── */
+
+/*
+ * CSS-class based approach: add ::before / ::after pseudo-elements on the
+ * target row instead of a floating absolutely-positioned element.
+ * No JS pixel calculation required — the pseudo-element sits at exactly the
+ * top or bottom edge of the hovered row.
+ */
+
+.fi-tree-node-row--drop-before::before,
+.fi-tree-node-row--drop-after::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary-500, var(--color-indigo-500));
+    border-radius: 9999px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.fi-tree-node-row--drop-before::before {
+    top: 0;
+    transform: translateY(-50%);
+}
+
+.fi-tree-node-row--drop-after::after {
+    bottom: 0;
+    transform: translateY(50%);
+}
+
+.dark .fi-tree-node-row--drop-before::before,
+.dark .fi-tree-node-row--drop-after::after {
+    background-color: var(--primary-400, var(--color-indigo-400));
+}
+
+/* Ring around the row (drop as child) */
+.fi-tree-node-row--drop-inside {
+    outline: 2px solid var(--primary-500, var(--color-indigo-500));
+    outline-offset: -2px;
+    background-color: var(--primary-50, var(--color-indigo-50));
+}
+
+.dark .fi-tree-node-row--drop-inside {
+    background-color: color-mix(
+        in oklab,
+        var(--primary-900, var(--color-indigo-900)) 20%,
+        transparent
+    );
+}
+
+/* ── Async children loading ──────────────────────────────────── */
+
+/* Spinning animation for the toggle icon while async children are being fetched */
+.fi-tree-toggle-icon--loading {
+    animation: fi-tree-spin 0.75s linear infinite;
+}
+
+@keyframes fi-tree-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Subtle opacity reduction on the row being expanded asynchronously */
+.fi-tree-node-row--loading {
+    opacity: 0.6;
+}
+
+/* ── Root-level trailing drop zone ───────────────────────────── */
+
+/*
+ * Invisible spacer below the last node. Becomes visible when a drag
+ * is in progress so users can "drag outward/down" to make any node
+ * the last root-level item.
+ */
+.fi-tree-root-drop-zone {
+    min-height: 2rem;
+    border-radius: 0.5rem;
+    border: 2px dashed transparent;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.fi-tree-root-drop-zone--active {
+    border-color: var(--primary-500, var(--color-indigo-500));
+    background-color: var(--primary-50, var(--color-indigo-50));
+}
+
+.dark .fi-tree-root-drop-zone--active {
+    background-color: color-mix(
+        in oklab,
+        var(--primary-900, var(--color-indigo-900)) 20%,
+        transparent
+    );
+}
