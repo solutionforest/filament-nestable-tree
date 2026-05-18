@@ -7,7 +7,6 @@ use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use SolutionForest\FilamentNestableTree\Commands\MakeTreePageCommand;
 use SolutionForest\FilamentNestableTree\Commands\MakeTreeWidgetCommand;
