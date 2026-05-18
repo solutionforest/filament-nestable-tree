@@ -40,7 +40,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
         $extends = $this->getExtends();
         $extendsBasename = class_basename($extends);
         // If current class name is same as the extends class, we need to alias the extends class to avoid naming conflict
-        if ($extendsBasename === $this->getBasename() || !$this->isCreatingPageTree()) {
+        if ($extendsBasename === $this->getBasename() || ! $this->isCreatingPageTree()) {
             $imports[$extends] = "Base{$extendsBasename}";
         } else {
             $imports[] = $extends;
@@ -306,7 +306,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                     ->after(fn (\$livewire) => \$livewire->dispatch('tree-refresh'))
         PHP;
         if (! $this->hasResource() || $this->isMultipleTrees()) {
-        $createActionFunc .= <<<PHP
+            $createActionFunc .= <<<PHP
         
                     ->schema([
                         \Filament\Forms\Components\TextInput::make(\$tree?->getLabelField() ?? 'name')->required(),
@@ -354,9 +354,9 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
 
         // Add sample node actions
         if (! $this->hasResource()) {
-            $body .= <<<PHP
+            $body .= <<<'PHP'
 
-                ->nodeActions(fn (Tree \$tree) => [
+                ->nodeActions(fn (Tree $tree) => [
                     ?
                 ])
             PHP;
