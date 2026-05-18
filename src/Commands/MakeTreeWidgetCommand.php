@@ -24,13 +24,13 @@ class MakeTreeWidgetCommand extends Command
 {
     use CanAskForLivewireComponentLocation;
     use CanAskForResource;
+    use CanAskTreeNodeConfiguration;
     use CanCheckFileGenerationFlags;
     use CanManipulateFiles;
     use HasCluster;
     use HasPanel;
     use HasResourcesLocation;
-    use CanAskTreeNodeConfiguration;
-    
+
     public $signature = 'make:filament-tree-widget
                         {name? : The name of the widget class}
                         {--C|cluster= : The cluster to create the widget in (optional)}
@@ -45,22 +45,18 @@ class MakeTreeWidgetCommand extends Command
 
     /**
      * The fully qualified class name of the widget to create, such as [App\Filament\Widgets\CategoryTree].
-     * 
+     *
      * @var class-string
      */
     protected string $fqn;
 
     /**
      * The class name ending of the widget, such as [CategoryTree] for a widget with the FQN of [App\Filament\Widgets\CategoryTree].
-     * 
-     * @var string
      */
     protected string $fqnEnd;
 
     /**
      * Whether or not this widget is being created within a filament resource.
-     * 
-     * @var bool
      */
     protected bool $hasResource = false;
 
@@ -68,24 +64,18 @@ class MakeTreeWidgetCommand extends Command
 
     /**
      * The namespace to create the widget in, such as [App\Filament\Resources\Categories] for a widget with the FQN of [App\Filament\Resources\Categories\CategoryTree].
-     * 
-     * @var string
      */
     protected string $widgetsNamespace;
 
     /**
      * The directory to create the widget in, such as [app/Filament/Resources/Categories] for a widget with the FQN of [App\Filament\Resources\Categories\CategoryTree].
-     * 
-     * @var string
      */
     protected string $widgetsDirectory;
 
     /**
      * The fully qualified class name of the resource this widget is being created in, such as [App\Filament\Resources\Categories\CategoryResource].
-     * 
+     *
      * Null if this widget is not being created within a resource.
-     * 
-     * @var string|null
      */
     protected ?string $resourceFqn = null;
 

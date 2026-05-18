@@ -23,7 +23,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
         protected ?string $modelFqn,
         protected ?string $staticNodesPropertyName,
         protected ?array $multipleTreeKeys = null,
-    ) { }
+    ) {}
 
     /**
      * @return array<string>
@@ -62,7 +62,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 $imports[] = $this->getClusterFqn();
             }
         }
-        
+
         return $imports;
     }
 
@@ -72,6 +72,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
             if ($this->hasResource()) {
                 return ResourceTreePage::class;
             }
+
             return TreePage::class;
         } else {
             return WidgetTree::class;
@@ -87,7 +88,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 ->setStatic()
                 ->setProtected();
         } else {
-            // Set default navigation icon 
+            // Set default navigation icon
             $class->addProperty('navigationIcon', 'heroicon-o-document')
                 ->setType('\BackedEnum|string|null')
                 ->setStatic()
@@ -100,14 +101,14 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 ['id' => 2, 'parent_id' => null, 'name' => 'Node 2'],
                 ['id' => 3, 'parent_id' => 1, 'name' => 'Node 1.1'],
                 ['id' => 4, 'parent_id' => 1, 'name' => 'Node 1.2'],
-                ['id' => 5, 'parent_id' => 3, 'name' => 'Node 1.1.1', 
+                ['id' => 5, 'parent_id' => 3, 'name' => 'Node 1.1.1',
                     'children' => [
-                        ['id' => 6, 'parent_id' => 5, 'name' => 'Node 1.1.1.1', 
+                        ['id' => 6, 'parent_id' => 5, 'name' => 'Node 1.1.1.1',
                             'children' => [
                                 ['id' => 7, 'parent_id' => 6, 'name' => 'Node 1.1.1.1.1'],
-                        ]],
+                            ]],
                         ['id' => 8, 'parent_id' => 5, 'name' => 'Node 1.1.1.2'],
-                    ]
+                    ],
                 ],
             ];
             if ($this->isMultipleTrees()) {
@@ -118,10 +119,10 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
             $class->addProperty($this->getFormattedStaticNodesPropertyName(), $defaultValue)
                 ->setType('array')
                 ->setPublic();
-        } 
+        }
     }
 
-    protected function addMethodsToClass(ClassType $class): void 
+    protected function addMethodsToClass(ClassType $class): void
     {
         if (! $this->isMultipleTrees()) {
             $method = $class->addMethod('tree')
@@ -130,7 +131,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 ->setBody('return ?;', [
                     new Literal($this->buildTreeMethodBody('$tree')),
                 ]);
-            
+
             $method->addParameter('tree')
 
                 ->setType(Tree::class);
@@ -144,7 +145,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                         ->mapWithKeys(function ($key) {
                             return [$key => new Literal($this->buildTreeMethodBody('Tree::make()', $key))];
                         })
-                        ->toArray()
+                        ->toArray(),
                 ]);
         }
     }
@@ -204,7 +205,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
 
     /**
      * Formats the static nodes property name by ensuring it does not have a leading '$' and is a valid PHP variable name.
-     * 
+     *
      * e.g. '$nodes' or 'nodes' would both be formatted to 'nodes'.
      */
     protected function getFormattedStaticNodesPropertyName(): ?string
@@ -226,6 +227,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
     public function getModelBasename(): ?string
     {
         $modelFqn = $this->getModelFqn();
+
         return filled($modelFqn) ? class_basename($modelFqn) : null;
     }
 
@@ -238,7 +240,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
 
         // If the model class name is same as the page class name, we need to alias the model class to avoid naming conflict
         if ($modelClassName === $this->getBasename()) {
-            return "TreeModel";
+            return 'TreeModel';
         }
 
         return $modelClassName;
@@ -253,11 +255,11 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
 
         // Nodes setting
         if ($this->isStaticNode()) {
-            $body .= <<<PHP
+            $body .= <<<'PHP'
 
                 ->records(?)
-                ->saveOrderUsing(function (array \$nodes) {
-                    ? = \$nodes;
+                ->saveOrderUsing(function (array $nodes) {
+                    ? = $nodes;
                 })
             PHP;
             $staticNodePropName = $this->getFormattedStaticNodesPropertyName();
@@ -269,33 +271,32 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
             $args[] = new Literal($staticNodeProp);
 
         } else {
-            $body .= <<<PHP
+            $body .= <<<'PHP'
 
                 ->model(?)
             PHP;
             if (($modelBasename = $this->getImportModelBasename()) && filled($modelBasename)) {
                 $args[] = new Literal("{$modelBasename}::class");
-            } else if ($this->hasResource()) {
+            } elseif ($this->hasResource()) {
                 $args[] = new Literal('static::getModel()');
             }
         }
 
-        $body .= <<<PHP
+        $body .= <<<'PHP'
 
                 ->labelField(?)
                 ->searchable()
                 ->draggable()
                 ->maxDepth(10)
                 ->maxVisibleDepth(4)
-                ->appendToolbarActions(fn (\$tree) => [
+                ->appendToolbarActions(fn ($tree) => [
                     ?
                 ])
             PHP;
         // Label field
-        $args[] = $this->hasResource() 
+        $args[] = $this->hasResource()
             ? new Literal('static::getResource()::getRecordTitleAttribute()') :
              'name';
-            
 
         // Add sample create button
         $createActionName = $multipleTreeKey ? "create-{$multipleTreeKey}" : 'create';

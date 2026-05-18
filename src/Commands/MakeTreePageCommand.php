@@ -22,12 +22,12 @@ use function Laravel\Prompts\text;
 class MakeTreePageCommand extends Command
 {
     use CanAskForResource;
+    use CanAskTreeNodeConfiguration;
     use CanManipulateFiles;
     use HasCluster;
     use HasClusterPagesLocation;
     use HasPanel;
     use HasResourcesLocation;
-    use CanAskTreeNodeConfiguration;
 
     public $signature = 'make:filament-tree-page
                         {name? : The name of the page class}
@@ -43,15 +43,13 @@ class MakeTreePageCommand extends Command
 
     /**
      * The fully qualified class name of the page to create, such as [App\Filament\Pages\Settings\ManageSettings].
-     * 
+     *
      * @var class-string
      */
     protected string $fqn;
 
     /**
      * The class name ending of the page, such as [ManageSettings] for a page with the FQN of [App\Filament\Pages\Settings\ManageSettings].
-     * 
-     * @var string
      */
     protected string $fqnEnd;
 
@@ -59,31 +57,23 @@ class MakeTreePageCommand extends Command
 
     /**
      * The namespace to create the page in, such as [App\Filament\Pages\Settings] for a page with the FQN of [App\Filament\Pages\Settings\ManageSettings].
-     * 
-     * @var string
      */
     protected string $pagesNamespace;
 
     /**
      * The directory to create the page in, such as [app/Filament/Pages/Settings] for a page with the FQN of [App\Filament\Pages\Settings\ManageSettings].
-     * 
-     * @var string
      */
     protected string $pagesDirectory;
 
     /**
      * Whether or not this page is being created within a filament resource.
-     * 
-     * @var bool
      */
     protected bool $hasResource = false;
 
     /**
      * The fully qualified class name of the resource this page is being created in, such as [App\Filament\Resources\SettingsResource].
-     * 
+     *
      * Null if this page is not being created within a resource.
-     * 
-     * @var string|null
      */
     protected ?string $resourceFqn = null;
 
@@ -119,7 +109,6 @@ class MakeTreePageCommand extends Command
 
         return self::SUCCESS;
     }
-
 
     protected function configureFqnEnd(): void
     {
