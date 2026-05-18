@@ -31,6 +31,13 @@ export default function treeView(config = {}) {
         dropPosition: 'inside',
         hasUnsavedOrder: false,
         rootDropZoneActive: false,
+        dropLine: { visible: false, y: 0, left: 0 },
+        /**
+         * True when a drag originating in ANOTHER tree is over this tree.
+         * Needed so the drop-line and root-drop-zone are shown even though
+         * this tree's own draggedNodeId is null during cross-tree drags.
+         */
+        crossTreeDragging: false,
         /** Node currently loading async children */
         loadingNodeId: null,
 
@@ -56,6 +63,39 @@ export default function treeView(config = {}) {
 
             this.$el.addEventListener('tree-order-saved', () => {
                 this.hasUnsavedOrder = false
+            })
+
+            // Hide drop-line and reset cross-tree flag when the drag fully
+            // exits this tree's container (covers the case where dragLeave on
+            // individual rows misses the exit, e.g. moving between columns).
+            this.$el.addEventListener('dragleave', (event) => {
+                if (!this.$el.contains(event.relatedTarget)) {
+                    this.dropLine.visible = false
+                    this.crossTreeDragging = false
+                }
+            })
+
+            // Safety-net: capture-phase listener on the tree container fires
+            // for dragend from ANY descendant, even if the source row was
+            // detached/morphed by Livewire before the event bubbled.
+            // (document-level dragend does NOT fire for detached elements.)
+            this.$el.addEventListener(
+                'dragend',
+                () => {
+                    if (this.draggedNodeId !== null || this.dropLine.visible) {
+                        this.dragEnd()
+                    }
+                },
+                true, // capture phase
+            )
+
+            // Global reset: when the SOURCE tree dispatches 'fi-tree-drag-ended'
+            // every tree (including trees that were cross-drag targets) resets.
+            // Using dispatchEvent from the source prevents calling dragEnd() on
+            // trees that never knew about the drag and avoids infinite loops
+            // because dragEnd() only dispatches when it IS the source.
+            document.addEventListener('fi-tree-drag-ended', () => {
+                this.dragEnd()
             })
         },
 
@@ -270,48 +310,129 @@ export default function treeView(config = {}) {
             window.__fi_tree_dragging = {
                 nodeId: String(nodeId),
                 treeKey: cfg.treeKey,
-                nodeData: nodeData ? JSON.parse(JSON.stringify(nodeData)) : null,
+                nodeData: nodeData
+                    ? JSON.parse(JSON.stringify(nodeData))
+                    : null,
             }
         },
 
         /**
-         * Track drop position for CSS class-based drop indicators.
-         * fi-tree-node-row--drop-before / --drop-after are applied via :class
-         * bindings on the row — no JS pixel calculation needed.
+         * Track drop position and update the floating drop-line indicator.
+         * Y position is computed from the row's bounding rect relative to the
+         * node-list container. For 'inside' drops the line is also indented to
+         * the child depth so the user sees exactly where the node will land.
          *
          * @param {DragEvent} event
          * @param {number}    index    sibling index
          * @param {*}         parentId parent node id (null = root)
          * @param {*}         nodeId   id of the target row
+         * @param {number}    depth    visual depth of the target row (0 = root)
          */
-        dragOver(event, index, parentId, nodeId) {
+        dragOver(event, index, parentId, nodeId, depth = 0) {
             if (!cfg.allowDragDrop) return
+            // Guard: bail out if no drag is actually in progress so a stale
+            // dragover event cannot re-show the drop-line after dragEnd().
+            if (!this.draggedNodeId && !window.__fi_tree_dragging) return
+            // Track whether this is a cross-tree drag so the drop-line and
+            // root-drop-zone remain visible even though draggedNodeId is null.
+            this.crossTreeDragging = !this.draggedNodeId
             event.preventDefault()
             event.dataTransfer.dropEffect = 'move'
 
             const rowRect = event.currentTarget.getBoundingClientRect()
             const pct = (event.clientY - rowRect.top) / rowRect.height
-            const position = pct < 0.3 ? 'before' : pct > 0.7 ? 'after' : 'inside'
+            const position =
+                pct < 0.3 ? 'before' : pct > 0.7 ? 'after' : 'inside'
 
             this.dropTargetId = String(nodeId)
             this.dropPosition = position
+
+            // Compute drop-line position relative to the node-list container.
+            // Y: offset ±4 px so the line centres in the gap between rows.
+            // X: use depth * 16 (less indentation than the row padding).
+            // For 'inside' drops the --drop-inside outline ring is the visual
+            // cue; no drop-line needed.
+            if (position === 'inside') {
+                this.dropLine.visible = false
+            } else {
+                const listEl = event.currentTarget.closest('.fi-tree-node-list')
+                if (listEl) {
+                    const listRect = listEl.getBoundingClientRect()
+                    const baseIndent = depth * 16
+                    // Mutate properties — do NOT replace the object or Alpine
+                    // loses reactive tracking and dragEnd() won't hide the line.
+                    this.dropLine.visible = true
+                    this.dropLine.y =
+                        position === 'before'
+                            ? rowRect.top - listRect.top - 4
+                            : rowRect.bottom - listRect.top + 4
+                    this.dropLine.left = baseIndent
+                }
+            }
         },
 
         dragLeave(event) {
             if (!cfg.allowDragDrop) return
             if (!event.currentTarget.contains(event.relatedTarget)) {
                 this.dropTargetId = null
+                this.dropLine.visible = false
             }
         },
 
         dragEnd() {
+            // Remember whether THIS tree was the drag source before clearing
+            // the global marker, so we can broadcast to other trees.
+            const wasSource = window.__fi_tree_dragging?.treeKey === cfg.treeKey
             this.draggedNodeId = null
             this.dropTargetId = null
             this.dropPosition = 'inside'
             this.rootDropZoneActive = false
+            this.crossTreeDragging = false
+            // Mutate properties instead of replacing the object so Alpine's
+            // reactive tracking on dropLine.visible is never lost.
+            this.dropLine.visible = false
+            this.dropLine.y = 0
+            this.dropLine.left = 0
             // Only clear the global state when it belongs to THIS tree.
             if (window.__fi_tree_dragging?.treeKey === cfg.treeKey) {
                 window.__fi_tree_dragging = null
+            }
+            // Broadcast to all other trees so they clear any cross-tree state
+            // (e.g. drop-line was showing in Tree 2 when the drag ended outside
+            // the tree container). Guard with wasSource to avoid infinite loops:
+            // destination trees call dragEnd() from the event but wasSource is
+            // false there so they never re-dispatch.
+            if (wasSource) {
+                document.dispatchEvent(new CustomEvent('fi-tree-drag-ended'))
+            }
+        },
+
+        /**
+         * Handle dragover on the root trailing drop zone.
+         * Positions the drop-line after the last visible node row.
+         */
+        dragOverRoot(event) {
+            if (!cfg.allowDragDrop) return
+            if (!this.draggedNodeId && !window.__fi_tree_dragging) return
+            this.crossTreeDragging = !this.draggedNodeId
+            event.preventDefault()
+            event.dataTransfer.dropEffect = 'move'
+            this.rootDropZoneActive = true
+
+            const listEl = event.currentTarget.parentElement
+            if (listEl) {
+                const listRect = listEl.getBoundingClientRect()
+                const rows = listEl.querySelectorAll('.fi-tree-node-row')
+                const y =
+                    rows.length > 0
+                        ? rows[rows.length - 1].getBoundingClientRect().bottom -
+                          listRect.top
+                        : 0
+                // Mutate properties — do NOT replace the object or Alpine
+                // loses reactive tracking and dragEnd() won't hide the line.
+                this.dropLine.visible = true
+                this.dropLine.y = y
+                this.dropLine.left = 0
             }
         },
 
@@ -327,7 +448,8 @@ export default function treeView(config = {}) {
 
             const globalDrag = window.__fi_tree_dragging
             const isCrossTree = !this.draggedNodeId && !!globalDrag
-            const effectiveDraggedId = this.draggedNodeId ?? globalDrag?.nodeId ?? null
+            const effectiveDraggedId =
+                this.draggedNodeId ?? globalDrag?.nodeId ?? null
             if (!effectiveDraggedId) return
 
             let node
@@ -395,7 +517,8 @@ export default function treeView(config = {}) {
             // last dragOver and could be stale if dragLeave fired between them).
             const rect = event.currentTarget.getBoundingClientRect()
             const pct = (event.clientY - rect.top) / rect.height
-            const dropPosition = pct < 0.3 ? 'before' : pct > 0.7 ? 'after' : 'inside'
+            const dropPosition =
+                pct < 0.3 ? 'before' : pct > 0.7 ? 'after' : 'inside'
 
             // Use the nodeId passed directly from the template instead of
             // this.dropTargetId, which dragLeave can clear before drop fires.
@@ -419,10 +542,10 @@ export default function treeView(config = {}) {
                 const destinationRootId =
                     destinationParentId === null
                         ? null
-                        : this._getRootAncestorId(
+                        : (this._getRootAncestorId(
                               this.treeData,
                               destinationParentId,
-                          ) ?? String(destinationParentId)
+                          ) ?? String(destinationParentId))
 
                 const isDraggedNodeRoot =
                     draggedRootId === null ||
@@ -459,7 +582,9 @@ export default function treeView(config = {}) {
                 const siblings =
                     parentId === null
                         ? this.treeData
-                        : (this._findById(this.treeData, parentId)?.[cfg.childrenField] ?? this.treeData)
+                        : (this._findById(this.treeData, parentId)?.[
+                              cfg.childrenField
+                          ] ?? this.treeData)
                 // Locate target by ID after removal to avoid stale-index issues
                 const target =
                     (effectiveTargetId
@@ -477,7 +602,9 @@ export default function treeView(config = {}) {
                 const siblings =
                     parentId === null
                         ? this.treeData
-                        : (this._findById(this.treeData, parentId)?.[cfg.childrenField] ?? this.treeData)
+                        : (this._findById(this.treeData, parentId)?.[
+                              cfg.childrenField
+                          ] ?? this.treeData)
                 // Re-resolve the target's current position after _removeById may
                 // have shifted indices (e.g. dragged node was before target in
                 // the same parent). Use effectiveTargetId (from the template,

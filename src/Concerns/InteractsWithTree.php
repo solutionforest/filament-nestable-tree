@@ -173,12 +173,17 @@ trait InteractsWithTree
         return [];
     }
 
+    protected function buildTree(): TreeConfig
+    {
+        return TreeConfig::make();
+    }
+
     // ── Cached tree resolution ────────────────────────────────────────────────
 
     public function getCachedTree(): TreeConfig
     {
         if ($this->cachedTree === null) {
-            $this->cachedTree = $this->tree(TreeConfig::make());
+            $this->cachedTree = $this->tree($this->buildTree());
         }
 
         return $this->cachedTree;
@@ -192,7 +197,7 @@ trait InteractsWithTree
             if (array_key_exists($key, $namedTrees)) {
                 $this->cachedTrees[$key] = $namedTrees[$key];
             } else {
-                $this->cachedTrees[$key] = TreeConfig::make();
+                $this->cachedTrees[$key] = $this->buildTree();
             }
         }
 

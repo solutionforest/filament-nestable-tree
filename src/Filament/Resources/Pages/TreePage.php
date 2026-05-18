@@ -17,7 +17,9 @@ use SolutionForest\FilamentNestableTree\Tree;
 
 abstract class TreePage extends Page
 {
-    use InteractsWithTree;
+    use InteractsWithTree {
+        buildTree as protected buildBaseTree;
+    }
 
     public function mount(): void
     {
@@ -57,7 +59,12 @@ abstract class TreePage extends Page
      */
     public function tree(Tree $tree): Tree
     {
-        return $tree
+        return $tree;
+    }
+
+    protected function buildTree(): Tree
+    {
+        return $this->buildBaseTree()
             ->nodeActions([
                 EditAction::make('edit_node')
                     ->label('Edit')
@@ -75,11 +82,6 @@ abstract class TreePage extends Page
                     ->iconButton()
                     ->after(fn () => $this->dispatch('tree-refresh')),
             ]);
-    }
-
-    protected function buildTree(): Tree
-    {
-        return Tree::make();
     }
 
     public function content(Schema $schema): Schema

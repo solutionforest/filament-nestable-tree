@@ -34,11 +34,6 @@ abstract class TreePage extends Page implements HasActions, HasSchemas
         return $action;
     }
 
-    protected function buildTree(): Tree
-    {
-        return Tree::make();
-    }
-
     public function content(Schema $schema): Schema
     {
         $namedTrees = $this->trees();

@@ -13,8 +13,6 @@
     :class="{
         'fi-tree-node-row--selected': selectedNode === node[idField],
         'fi-tree-node-row--dragging': draggedNodeId === String(node[idField]),
-        'fi-tree-node-row--drop-before': dropTargetId === String(node[idField]) && dropPosition === 'before',
-        'fi-tree-node-row--drop-after': dropTargetId === String(node[idField]) && dropPosition === 'after',
         'fi-tree-node-row--drop-inside': dropTargetId === String(node[idField]) && dropPosition === 'inside',
         'fi-tree-node-row--has-descendant-match': node._hasDescendantMatch && !node._isExpanded && searchQuery.trim(),
         'fi-tree-node-row--loading': loadingNodeId === String(node[idField]),
@@ -22,7 +20,7 @@
     :style="'padding-left: ' + ((node._depth * 20) + 12) + 'px'"
     :draggable="allowDragDrop ? 'true' : 'false'"
     @dragstart="dragStart($event, node[idField])"
-    @dragover="dragOver($event, node._index, node._parentId, node[idField])"
+    @dragover="dragOver($event, node._index, node._parentId, node[idField], node._depth)"
     @dragleave="dragLeave($event)"
     @drop="drop($event, node._index, node._parentId, node[idField])"
     @dragend="dragEnd()"

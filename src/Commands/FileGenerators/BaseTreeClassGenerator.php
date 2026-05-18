@@ -40,7 +40,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
         $extends = $this->getExtends();
         $extendsBasename = class_basename($extends);
         // If current class name is same as the extends class, we need to alias the extends class to avoid naming conflict
-        if ($extendsBasename === $this->getBasename()) {
+        if ($extendsBasename === $this->getBasename() || !$this->isCreatingPageTree()) {
             $imports[$extends] = "Base{$extendsBasename}";
         } else {
             $imports[] = $extends;
@@ -123,21 +123,6 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
 
     protected function addMethodsToClass(ClassType $class): void 
     {
-        if ($this->hasResource()) {
-            // Add header actions
-            $class->addMethod('headerActions')
-                ->setPublic()
-                ->setReturnType('array')
-                ->setBody('return ?;', [
-                    new Literal(<<<'PHP'
-                    [
-                        CreateAction::make()
-                            ->extraAttributes(['style' => 'margin-right: auto;'])
-                    ]
-                    PHP)
-                ]);
-        }
-
         if (! $this->isMultipleTrees()) {
             $method = $class->addMethod('tree')
                 ->setPublic()
@@ -313,44 +298,94 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
             
 
         // Add sample create button
+        $createActionName = $multipleTreeKey ? "create-{$multipleTreeKey}" : 'create';
+        $createActionFunc = <<<PHP
+                CreateAction::make('{$createActionName}')
+                    ->extraAttributes(['style' => 'margin-left: auto;'])
+                    ->after(fn (\$livewire) => \$livewire->dispatch('tree-refresh'))
+        PHP;
         if (! $this->hasResource() || $this->isMultipleTrees()) {
-            $createActionName = $multipleTreeKey ? "create-{$multipleTreeKey}" : 'create';
-            $createActionFunc = <<<PHP
-                    CreateAction::make('{$createActionName}')
-                        ->extraAttributes(['style' => 'margin-left: auto;'])
+        $createActionFunc .= <<<PHP
+        
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make(\$tree?->getLabelField() ?? 'name')->required(),
+                    ])
+        PHP;
+        }
+        if ($this->isStaticNode()) {
+            $createActionFunc .= <<<PHP
+
+                    ->action(function (array \$data, \$action) use (\$tree) {
+                        // Handle node creation logic here
+                        // For example, if using static nodes:
+                        \$newNode = [
+                            'id' => rand(1000, 9999), // Generate a random ID for demo purposes
+                            'parent_id' => null, // Set parent_id as needed
+                            'name' => \$data['name'],
+                        ];
+                        \Filament\Notifications\Notification::make()
+                            ->title('New Node Data')
+                            ->body(json_encode(\$newNode))
+                            ->info()
+                            ->send();
+                        \$action->halt();
+                    }),
+        PHP;
+        } else {
+            $createActionFunc .= <<<PHP
+
+                    ->action(function (array \$data, \$model, \$action) use (\$tree) {
+                            \$model ??= \$tree->getModel();
+                            if (empty(\$model)) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Model Not Found')
+                                    ->body('Unable to determine the model for creating a new node.')
+                                    ->danger()
+                                    ->send();
+                                \$action->halt();
+                                return;
+                            }
+                            \$model::create(\$data);
+                    }),
+        PHP;
+        }
+        $args[] = new Literal($createActionFunc);
+
+        // Add sample node actions
+        if (! $this->hasResource()) {
+            $body .= <<<PHP
+
+                ->nodeActions(fn (Tree \$tree) => [
+                    ?
+                ])
+            PHP;
+            $args[] = new Literal(<<<PHP
+                    Action::make('rename')
+                        ->iconButton()
+                        ->icon('heroicon-o-pencil')
+                        ->color('gray')
                         ->schema([
                             \Filament\Forms\Components\TextInput::make(\$tree?->getLabelField() ?? 'name')->required(),
                         ])
-                        ->after(fn (\$livewire) => \$livewire->dispatch('tree-refresh'))
-            PHP;
-            if ($this->isStaticNode()) {
-                $createActionFunc .= <<<PHP
-
-                        ->action(function (array \$data, \$action) use (\$tree) {
-                            // Handle node creation logic here
-                            // For example, if using static nodes:
-                            \$newNode = [
-                                'id' => rand(1000, 9999), // Generate a random ID for demo purposes
-                                'parent_id' => null, // Set parent_id as needed
-                                'name' => \$data['name'],
-                            ];
+                        ->fillForm(fn (\$record): array => is_array(\$record) ? \$record : \$record->toArray())
+                        ->action(function (array \$data, \$record, array \$arguments) use (\$tree): void {
+                            // \$record is the Eloquent model or the array node
+                            // \$arguments['nodeId'] is the node's primary key
                             \Filament\Notifications\Notification::make()
-                                ->title('New Node Data')
-                                ->body(json_encode(\$newNode))
+                                ->title('Rename Action Triggered')
+                                ->body(json_encode([
+                                    'data' => \$data,
+                                    'record' => is_object(\$record) ? \$record->toArray() : \$record,
+                                    'arguments' => \$arguments,
+                                ]))
                                 ->info()
                                 ->send();
-                            \$action->halt();
-                        }),
-            PHP;
-            } else {
-                $createActionFunc .= <<<PHP
-
-                        ->action(fn (array \$data, \$model) => \$model::create(\$data)),
-            PHP;
-            }
-            $args[] = new Literal($createActionFunc);
-        } else {
-            $args[] = new Literal('// Add toolbar actions here');
+                            // Implement your rename logic here
+                            // For example, if using static nodes, you would update the corresponding node in the static property
+                            // If using a model, you would find the model instance and update it
+                        })
+                        ->after(fn (\$livewire) => \$livewire->dispatch('tree-refresh')),
+            PHP);
         }
 
         return (string) (new Literal($body, $args));

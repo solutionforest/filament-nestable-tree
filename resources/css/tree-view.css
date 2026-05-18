@@ -21,6 +21,7 @@
     @apply flex items-center gap-x-2 rounded-lg px-3 py-2 text-sm transition-colors cursor-default;
     @apply bg-white hover:bg-gray-200 shadow-sm;
     position: relative;
+    outline-color: transparent;
 }
 
 .dark .fi-tree-node-row {
@@ -277,8 +278,12 @@
 }
 
 @keyframes fi-tree-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Subtle opacity reduction on the row being expanded asynchronously */
@@ -295,20 +300,33 @@
  */
 .fi-tree-root-drop-zone {
     min-height: 2rem;
-    border-radius: 0.5rem;
-    border: 2px dashed transparent;
-    transition: border-color 0.15s, background-color 0.15s;
 }
 
-.fi-tree-root-drop-zone--active {
-    border-color: var(--primary-500, var(--color-indigo-500));
-    background-color: var(--primary-50, var(--color-indigo-50));
+.filament-nestable-tree .drop-line {
+    height: 2px;
+    background-color: var(--primary-500, var(--color-indigo-500));
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
 }
 
-.dark .fi-tree-root-drop-zone--active {
-    background-color: color-mix(
-        in oklab,
-        var(--primary-900, var(--color-indigo-900)) 20%,
-        transparent
-    );
+.dark .filament-nestable-tree .drop-line {
+    background-color: var(--primary-400, var(--color-indigo-400));
+}
+
+/* A 'dot' before the drop line */
+.filament-nestable-tree .drop-line::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background-color: var(--primary-500, var(--color-indigo-500));
+}
+
+.dark .filament-nestable-tree .drop-line::before {
+    background-color: var(--primary-400, var(--color-indigo-400));
 }

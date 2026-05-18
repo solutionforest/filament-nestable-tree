@@ -95,7 +95,9 @@ trait ResolvesNodes
 
         $nodes = $this->getRecords();
 
-        $flatten = $this->flattenNodes($nodes);
+        $childrenField = $this->getChildrenField();
+
+        $flatten = $this->flattenNodes($nodes, $childrenField);
 
         return collect($flatten)->firstWhere($keyField, $id);
     }
@@ -110,6 +112,9 @@ trait ResolvesNodes
 
         $instance = new $model;
 
+        $parentKeyField = $this->getParentKeyField();
+        $childrenField = $this->getChildrenField();
+
         // Detect kalnoy/nestedset NodeTrait presence.
         // Use defaultOrder()->get()->toTree() — the canonical way to load a
         // full nested-set tree. This fetches ALL nodes ordered by _lft so that
@@ -120,21 +125,22 @@ trait ResolvesNodes
         }
 
         // Fallback: load all records, let the caller structure them
-        return $model::whereNull($this->parentKeyField)
-            ->with($this->childrenField)
+        return $model::whereNull($parentKeyField)
+            ->with($childrenField)
             ->get()
             ->toArray();
     }
 
-    protected function flattenNodes(array $nodes): array
+    protected function flattenNodes(array $nodes, $childrenField = null): array
     {
         $flattened = [];
+        $childrenField ??= $this->getChildrenField();
 
         foreach ($nodes as $node) {
             $flattened[] = $node;
 
-            if (isset($node[$this->childrenField]) && is_array($node[$this->childrenField])) {
-                $flattened = array_merge($flattened, $this->flattenNodes($node[$this->childrenField]));
+            if (isset($node[$childrenField]) && is_array($node[$childrenField])) {
+                $flattened = array_merge($flattened, $this->flattenNodes($node[$childrenField], $childrenField));
             }
         }
 

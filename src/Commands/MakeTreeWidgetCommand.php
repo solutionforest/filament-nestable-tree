@@ -32,7 +32,7 @@ class MakeTreeWidgetCommand extends Command
     use CanAskTreeNodeConfiguration;
     
     public $signature = 'make:filament-tree-widget
-                        {name : The name of the widget class}
+                        {name? : The name of the widget class}
                         {--C|cluster= : The cluster to create the widget in (optional)}
                         {--panel= : The panel to create the widget in (optional)}
                         {--R|resource= : The resource to create the widget in (optional)}

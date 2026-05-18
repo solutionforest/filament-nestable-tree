@@ -53,13 +53,21 @@
         @if ($allowDragDrop)
             <div
                 class="fi-tree-root-drop-zone"
-                x-show="draggedNodeId !== null"
+                x-show="draggedNodeId !== null || crossTreeDragging"
                 x-cloak
-                :class="{ 'fi-tree-root-drop-zone--active': rootDropZoneActive }"
-                @dragover.prevent="rootDropZoneActive = true; $event.dataTransfer.dropEffect = 'move'"
-                @dragleave="if (!$el.contains($event.relatedTarget)) rootDropZoneActive = false"
+                @dragover="dragOverRoot($event)"
+                @dragleave="if (!$el.contains($event.relatedTarget)) { rootDropZoneActive = false; dropLine.visible = false }"
                 @drop.prevent="dropAtRoot($event)"
             ></div>
+        @endif
+    
+        @if ($allowDragDrop)
+        <div
+            class="drop-line"
+            x-show="dropLine.visible && (draggedNodeId !== null || crossTreeDragging)"
+            x-cloak
+            :style="{ top: dropLine.y + 'px', left: dropLine.left + 'px', width: 'calc(100% - ' + dropLine.left + 'px)' }"
+        ></div>
         @endif
 
         <x-filament-nestable-tree::tree.empty-state />
