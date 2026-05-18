@@ -1,36 +1,31 @@
 # Filament Nestable Tree
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/solutionforest/filament-nestable-tree.svg?style=flat-square)](https://packagist.org/packages/solutionforest/filament-nestable-tree)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/solutionforest/filament-nestable-tree.svg?style=flat-square)](https://packagist.org/packages/solutionforest/filament-nestable-tree)
+[![Laravel Compatibility](https://badge.laravel.cloud/badge/solution-forest/filament-nestable-tree)](https://packagist.org/packages/solution-forest/filament-nestable-tree)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/solution-forest/filament-nestable-tree.svg?style=flat-square)](https://packagist.org/packages/solution-forest/filament-nestable-tree)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/run-tests.yml?branch=1.x&label=tests&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3Arun-tests+branch%3A1.x)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/fix-php-code-style-issues.yml?branch=1.x&label=code%20style&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3A1.x)
+[![Total Downloads](https://img.shields.io/packagist/dt/solution-forest/filament-nestable-tree.svg?style=flat-square)](https://packagist.org/packages/solution-forest/filament-nestable-tree)
 
-A nestable drag-and-drop tree component for [Filament](https://filamentphp.com) v5. Supports Eloquent models (including [`kalnoy/nestedset`](https://github.com/lazychaser/laravel-nestedset)), static record arrays, per-node actions, multi-tree pages, cross-tree drag-and-drop, lazy loading, and async child loading.
+A nestable drag-and-drop tree component for [Filament](https://filamentphp.com) v4 and v5. Supports Eloquent models (including [`kalnoy/nestedset`](https://github.com/lazychaser/laravel-nestedset)), static record arrays, per-node actions, multi-tree pages, cross-tree drag-and-drop, lazy loading, and async child loading.
 
-> **Example usage** — see the [demo application](https://github.com/solutionforest/filament-nestable-tree-dev) and the ready-to-run [fixture pages](tests/fixtures/Pages) in this repository.
+> **Example usage** — see the [fixture pages](tests/fixtures/Pages) in this repository.
 
 ---
 
 ## Installation
 
 ```bash
-composer require solutionforest/filament-nestable-tree
+composer require solution-forest/filament-nestable-tree
 ```
 
 > [!IMPORTANT]
 > If you are using Filament Panels with a custom theme, add the plugin's views to your theme CSS file so Tailwind can scan them:
 >
 > ```css
-> @source '../../../../vendor/solutionforest/filament-nestable-tree/resources/**/*.blade.php';
+> @source '../../../../vendor/solution-forest/filament-nestable-tree/resources/**/*.blade.php';
 > ```
 >
 > If you have not yet set up a custom theme, follow the [Filament theming guide](https://filamentphp.com/docs/4.x/styling/overview#creating-a-custom-theme) first.
-
-Optionally publish the stub files:
-
-```bash
-php artisan vendor:publish --tag="filament-nestable-tree-stubs"
-```
 
 ---
 
@@ -422,7 +417,7 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 You can install the package via composer:
 
 ```bash
-composer require solutionforest/filament-nestable-tree
+composer require solution-forest/filament-nestable-tree
 ```
 
 > [!IMPORTANT]
@@ -431,7 +426,7 @@ composer require solutionforest/filament-nestable-tree
 After setting up a custom theme add the plugin's views to your theme css file or your app's css file if using the standalone packages.
 
 ```css
-@source '../../../../vendor/solutionforest/filament-nestable-tree/resources/**/*.blade.php';
+@source '../../../../vendor/solution-forest/filament-nestable-tree/resources/**/*.blade.php';
 ```
 
 You can publish and run the migrations with:

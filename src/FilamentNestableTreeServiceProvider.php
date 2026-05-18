@@ -10,7 +10,6 @@ use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use SolutionForest\FilamentNestableTree\Commands\MakeTreePageCommand;
-use SolutionForest\FilamentNestableTree\Commands\MakeTreeResourcePageCommand;
 use SolutionForest\FilamentNestableTree\Commands\MakeTreeWidgetCommand;
 use SolutionForest\FilamentNestableTree\Testing\TestsFilamentNestableTree;
 use Spatie\LaravelPackageTools\Package;
@@ -54,15 +53,6 @@ class FilamentNestableTreeServiceProvider extends PackageServiceProvider
         // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Handle Stubs
-        if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
-                $this->publishes([
-                    $file->getRealPath() => base_path("stubs/filament-nestable-tree/{$file->getFilename()}"),
-                ], 'filament-nestable-tree-stubs');
-            }
-        }
-
         // Testing
         Testable::mixin(new TestsFilamentNestableTree);
     }
@@ -91,7 +81,6 @@ class FilamentNestableTreeServiceProvider extends PackageServiceProvider
         return [
             MakeTreePageCommand::class,
             MakeTreeWidgetCommand::class,
-            MakeTreeResourcePageCommand::class,
         ];
     }
 
