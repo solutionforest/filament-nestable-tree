@@ -1,6 +1,6 @@
 {
     "name": "solution-forest/filament-nestable-tree",
-    "description": "This is my package filament-nestable-tree",
+    "description": "A nestable drag-and-drop tree component for Filament v4 and v5. Supports Eloquent models (including kalnoy/nestedset), static record arrays, per-node actions, multi-tree pages, cross-tree drag-and-drop, lazy loading, and async child loading.",
     "keywords": [
         "solutionforest",
         "laravel",
