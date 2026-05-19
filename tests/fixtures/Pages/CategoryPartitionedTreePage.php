@@ -116,7 +116,7 @@ class CategoryPartitionedTreePage extends TreePage
             ->map(function ($node) use ($nodeId, $destCategoryId, $destinationParentId) {
                 if ((string) ($node['id'] ?? '') === (string) $nodeId) {
                     $node['category_id'] = $destCategoryId;
-                    $node['parent_id']   = $destinationParentId;
+                    $node['parent_id'] = $destinationParentId;
                 }
 
                 return $node;
@@ -129,7 +129,7 @@ class CategoryPartitionedTreePage extends TreePage
     /**
      * Create a new node (auto-incremented id) or update an existing one.
      *
-     * @param  array<string, mixed>       $data
+     * @param  array<string, mixed>  $data
      * @param  array<string, mixed>|null  $existingRecord  null = create, non-null = update
      */
     public function upsertNode(array $data, string $keyField = 'id', ?array $existingRecord = null): void
@@ -145,7 +145,7 @@ class CategoryPartitionedTreePage extends TreePage
                 })
                 ->all();
         } else {
-            $ids   = array_column(static::$nodes, $keyField);
+            $ids = array_column(static::$nodes, $keyField);
             $maxId = $ids !== [] ? (int) max($ids) : 0;
             $data[$keyField] = $maxId + 1;
             static::$nodes[] = $data;

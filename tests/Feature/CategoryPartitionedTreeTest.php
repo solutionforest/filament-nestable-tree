@@ -36,7 +36,7 @@ it('tree1 only loads nodes for category 1', function () {
     $component = livewire(CategoryPartitionedTreePage::class);
 
     $tree1Nodes = $component->get('namedTreeNodes')['tree1'];
-    $allIds     = array_column(CategoryPartitionedTreePage::asFlatten($tree1Nodes), 'id');
+    $allIds = array_column(CategoryPartitionedTreePage::asFlatten($tree1Nodes), 'id');
 
     expect($allIds)->toContain(1)
         ->toContain(2)
@@ -48,7 +48,7 @@ it('tree2 only loads nodes for category 2', function () {
     $component = livewire(CategoryPartitionedTreePage::class);
 
     $tree2Nodes = $component->get('namedTreeNodes')['tree2'];
-    $allIds     = array_column(CategoryPartitionedTreePage::asFlatten($tree2Nodes), 'id');
+    $allIds = array_column(CategoryPartitionedTreePage::asFlatten($tree2Nodes), 'id');
 
     expect($allIds)->toContain(3)
         ->toContain(4)
