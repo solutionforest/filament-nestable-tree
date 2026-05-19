@@ -34,10 +34,14 @@ jobs:
             testbench: 10.*
             carbon: 3.*
             collision: 8.*
+            nestedset: '^7.0'
+            filament: '^5.0'
           - laravel: 11.*
             testbench: 9.*
             carbon: 3.*
             collision: 8.*
+            nestedset: '^6.0'
+            filament: '^4.0'
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -59,7 +63,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" --no-interaction --no-update
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "nesbot/carbon:${{ matrix.carbon }}" "kalnoy/nestedset:${{ matrix.nestedset }}" "filament/filament:${{ matrix.filament }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: List Installed Dependencies
