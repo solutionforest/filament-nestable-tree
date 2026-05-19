@@ -1,6 +1,5 @@
 # Filament Nestable Tree
 
-[![Laravel Compatibility](https://badge.laravel.cloud/badge/solution-forest/filament-nestable-tree)](https://packagist.org/packages/solution-forest/filament-nestable-tree)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/solution-forest/filament-nestable-tree.svg?style=flat-square)](https://packagist.org/packages/solution-forest/filament-nestable-tree)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/run-tests.yml?branch=1.x&label=tests&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3Arun-tests+branch%3A1.x)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/solutionforest/filament-nestable-tree/fix-php-code-style-issues.yml?branch=1.x&label=code%20style&style=flat-square)](https://github.com/solutionforest/filament-nestable-tree/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3A1.x)
