@@ -34,14 +34,19 @@ jobs:
             testbench: 10.*
             carbon: 3.*
             collision: 8.*
-            nestedset: '^7.0'
-            filament: '^5.0'
+            nestedset: '6.*'
+            filament: '5.*'
           - laravel: 11.*
             testbench: 9.*
             carbon: 3.*
             collision: 8.*
-            nestedset: '^6.0'
-            filament: '^4.0'
+            nestedset: '6.*'
+            filament: '4.*'
+        exclude:
+          # Filament 5 requires livewire/livewire ^4.1; pest-plugin-livewire v4
+          # requires PHP ^8.3, making PHP 8.2 + L12 unresolvable in the test env.
+          - php: 8.2
+            laravel: 12.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
