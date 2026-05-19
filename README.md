@@ -14,6 +14,13 @@ A nestable drag-and-drop tree component for [Filament](https://filamentphp.com) 
 
 ---
 
+## Which Package Should I Use?
+
+- Need a simple tree solution with quick setup? Use [filament-tree](https://github.com/solutionforest/filament-tree).
+- Need to handle heavy-load menus or large, complex trees? Use this package (`filament-nestable-tree`).
+
+---
+
 ## Installation
 
 ```bash
