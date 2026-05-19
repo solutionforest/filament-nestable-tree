@@ -52,6 +52,7 @@
     "autoload-dev": {
         "psr-4": {
             "SolutionForest\\FilamentNestableTree\\Tests\\": "tests/",
+            "SolutionForest\\FilamentNestableTree\\Tests\\Fixtures\\": "tests/fixtures/",
             "SolutionForest\\FilamentNestableTree\\Tests\\Database\\Factories\\": "tests/database/factories/"
         }
     },
@@ -60,7 +61,7 @@
         "analyse": "phpstan analyse",
         "lint": "pint",
         "refactor": "rector",
-        "test": "pest",
+        "test": "./vendor/bin/pest --no-coverage 2>&1",
         "test:lint": "pint --test",
         "test:refactor": "rector --dry-run"
     },

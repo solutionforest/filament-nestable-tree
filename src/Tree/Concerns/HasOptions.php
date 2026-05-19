@@ -128,8 +128,7 @@ trait HasOptions
     public function executeSaveOrder(array $orderedNodes): void
     {
         $savedNotification = Notification::make()
-            // TODO: add 'Saved' translation key
-            ->title(__('Saved'))
+            ->title(__('filament-nestable-tree::messages.saved'))
             ->success();
 
         if ($this->saveOrderUsing !== null) {

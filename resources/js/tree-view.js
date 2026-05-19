@@ -126,8 +126,12 @@ export default function treeView(config = {}) {
 
             const walk = (nodes, depth, parentId) => {
                 nodes.forEach((node, index) => {
+                    // In async mode: a node is expandable until its children
+                    // have been fetched (node._childrenLoaded is set by
+                    // _asyncExpandNode after the first server call).
                     const hasChildren =
-                        (node[cfg.childrenField]?.length ?? 0) > 0
+                        (node[cfg.childrenField]?.length ?? 0) > 0 ||
+                        (cfg.asyncChildren && !node._childrenLoaded)
                     const matchesSearch =
                         !query ||
                         String(node[cfg.nameField] ?? '')

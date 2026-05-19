@@ -121,10 +121,24 @@ trait ResolvesNodes
         // toTree()/linkNodes() groups them correctly AND siblings are returned
         // in their stored _lft order after every rebuildTree() call.
         if (in_array('Kalnoy\Nestedset\NodeTrait', class_uses_recursive($instance))) {
+            // When async children are enabled, return only root nodes so the JS
+            // condition `!(node.children?.length > 0)` stays true and
+            // _asyncExpandNode() is invoked on first expand.
+            if ($this->hasAsyncChildren()) {
+                return $model::whereIsRoot()->defaultOrder()->get()->toArray();
+            }
+
             return $model::defaultOrder()->get()->toTree()->toArray();
         }
 
-        // Fallback: load all records, let the caller structure them
+        // Fallback (plain model, no NodeTrait).
+        // With async children: load root nodes only — children are fetched
+        // on-demand via loadChildren() / asyncChildrenUsing callback.
+        if ($this->hasAsyncChildren()) {
+            return $model::whereNull($parentKeyField)->get()->toArray();
+        }
+
+        // Full eager load: requires the model to define a children() HasMany.
         return $model::whereNull($parentKeyField)
             ->with($childrenField)
             ->get()

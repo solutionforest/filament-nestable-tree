@@ -8,15 +8,15 @@ use function Pest\Livewire\livewire;
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
 
-    // Reset shared static storage before every test.
-    StaticRecordsTreePage::$staticNodes = [
-        ['id' => 1, 'title' => 'Root A', 'children' => []],
-        [
-            'id' => 2, 'title' => 'Root B', 'children' => [
-                ['id' => 3, 'title' => 'Child B1', 'children' => []],
-            ],
-        ],
-    ];
+    // Create a fresh temp JSON file with default nodes before every test.
+    StaticRecordsTreePage::$jsonFile = sys_get_temp_dir() . '/fi-tree-test-' . uniqid() . '.json';
+    StaticRecordsTreePage::writeNodes(StaticRecordsTreePage::defaultNodes());
+});
+
+afterEach(function () {
+    if (StaticRecordsTreePage::$jsonFile !== '' && file_exists(StaticRecordsTreePage::$jsonFile)) {
+        unlink(StaticRecordsTreePage::$jsonFile);
+    }
 });
 
 it('renders the static-records tree page without errors', function () {
@@ -24,42 +24,31 @@ it('renders the static-records tree page without errors', function () {
         ->assertSuccessful();
 });
 
-it('static records tree page loads nodes', function () {
+it('static records tree page loads nodes from the JSON file', function () {
+    $expected = StaticRecordsTreePage::asTree(StaticRecordsTreePage::defaultNodes());
+
     livewire(StaticRecordsTreePage::class)
-        ->assertSet('treeNodes', StaticRecordsTreePage::$staticNodes);
+        ->assertSet('treeNodes', $expected);
 });
 
-it('saveTreeOrder persists order via saveOrderUsing callback', function () {
+it('saveTreeOrder persists the new order to the JSON file', function () {
     $reordered = [
-        [
-            'id' => 2, 'title' => 'Root B', 'children' => [
-                ['id' => 3, 'title' => 'Child B1', 'children' => []],
-            ],
-        ],
-        ['id' => 1, 'title' => 'Root A', 'children' => []],
+        ['id' => 2, 'title' => 'Root B', 'parent_id' => null, 'children' => [
+            ['id' => 3, 'title' => 'Child B1', 'parent_id' => 2, 'children' => []],
+        ]],
+        ['id' => 1, 'title' => 'Root A', 'parent_id' => null, 'children' => []],
     ];
 
     livewire(StaticRecordsTreePage::class)
         ->call('saveTreeOrder', $reordered);
 
-    expect(StaticRecordsTreePage::$staticNodes)->toBe($reordered);
-});
+    $saved = StaticRecordsTreePage::readNodes();
+    $ids = array_column($saved, 'id');
 
-it('refreshes nodes on tree-refresh event', function () {
-    $component = livewire(StaticRecordsTreePage::class);
-
-    $component->assertSet('treeNodes', StaticRecordsTreePage::$staticNodes);
-
-    // Simulate what a CreateAction/EditAction would do: mutate static storage.
-    StaticRecordsTreePage::$staticNodes = [
-        ['id' => 1, 'title' => 'Root A', 'children' => []],
-        ['id' => 2, 'title' => 'Root B', 'children' => []],
-        ['id' => 99, 'title' => 'New Node', 'children' => []],
-    ];
-
-    $component->dispatch('tree-refresh');
-
-    $component->assertSet('treeNodes', StaticRecordsTreePage::$staticNodes);
+    // Root B (id=2) should now appear before Root A (id=1).
+    expect($ids[0])->toBe(2)
+        ->and($ids[1])->toBe(3)
+        ->and($ids[2])->toBe(1);
 });
 
 it('saveTreeOrder dispatches tree-order-saved event', function () {
@@ -72,4 +61,31 @@ it('resetTreeOrder dispatches tree-reset event', function () {
     livewire(StaticRecordsTreePage::class)
         ->call('resetTreeOrder')
         ->assertDispatched('tree-reset');
+});
+
+it('refreshes nodes from JSON on tree-refresh event', function () {
+    $component = livewire(StaticRecordsTreePage::class);
+
+    // Write new data to the JSON file (simulates external update / reset).
+    $newFlat = [
+        ['id' => 99, 'title' => 'New Root', 'parent_id' => null],
+    ];
+    StaticRecordsTreePage::writeNodes($newFlat);
+
+    $component->dispatch('tree-refresh');
+
+    $nodes = $component->get('treeNodes');
+    expect($nodes)->toHaveCount(1)
+        ->and($nodes[0]['title'])->toBe('New Root');
+});
+
+it('asTree and asFlatten are inverse operations', function () {
+    $flat = StaticRecordsTreePage::defaultNodes();
+    $tree = StaticRecordsTreePage::asTree($flat);
+    $back = StaticRecordsTreePage::asFlatten($tree);
+
+    $originalIds = array_column($flat, 'id');
+    $roundIds = array_column($back, 'id');
+
+    expect(sort($originalIds))->toBe(sort($roundIds));
 });

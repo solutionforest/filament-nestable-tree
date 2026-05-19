@@ -94,25 +94,25 @@ trait HasToolbar
             ActionGroup::make([
 
                 Action::make('collapse_all')
-                    ->label(__('Collapse All'))
+                    ->label(__('filament-nestable-tree::messages.collapse_all'))
                     ->alpineClickHandler('collapseAll()')
                     ->icon(Heroicon::ChevronUp)
                     ->color('gray'),
 
                 Action::make('expand_all')
-                    ->label(__('Expand All'))
+                    ->label(__('filament-nestable-tree::messages.expand_all'))
                     ->alpineClickHandler('expandAll()')
                     ->icon(Heroicon::ChevronDown)
                     ->color('gray'),
             ])->buttonGroup(),
 
             Action::make('save')
-                ->label(__('Save'))
+                ->label(__('filament-nestable-tree::messages.save'))
                 ->extraAttributes(['x-show' => 'hasUnsavedOrder', 'x-cloak' => true])
                 ->alpineClickHandler('$wire.saveTreeOrder([], treeKey)'),
 
             Action::make('reset')
-                ->label(__('Reset'))
+                ->label(__('filament-nestable-tree::messages.reset'))
                 ->color('gray')
                 ->icon(Heroicon::ArrowPath)
                 ->iconButton()

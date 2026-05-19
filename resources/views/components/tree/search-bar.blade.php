@@ -10,8 +10,7 @@
             maxlength="1000"
             type="search"
             x-model="searchQuery"
-            {{-- TODO: add translation key / allow can custom search bar placeholder message --}}
-            placeholder="{{ __('Search nodes...') }}"
+            placeholder="{{ __('filament-nestable-tree::messages.search_placeholder') }}"
         />
     </x-filament::input.wrapper>
 </div>

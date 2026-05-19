@@ -28,7 +28,8 @@ class FilamentNestableTreeServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package->name(static::$name)
-            ->hasCommands($this->getCommands());
+            ->hasCommands($this->getCommands())
+            ->hasTranslations();
 
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(static::$viewNamespace);
