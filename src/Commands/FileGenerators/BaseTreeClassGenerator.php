@@ -95,6 +95,14 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 ->setProtected();
         }
 
+        // Add cluster
+        if ($this->hasCluster() && $this->isCreatingPageTree()) {
+            $class->addProperty('cluster', new Literal("{$this->simplifyFqn($this->getClusterFqn())}::class"))
+                ->setProtected()
+                ->setStatic()
+                ->setType('?string');
+        }
+
         if ($this->isStaticNode()) {
             $defaultTreeValues = [
                 ['id' => 1, 'parent_id' => null, 'name' => 'Node 1'],
