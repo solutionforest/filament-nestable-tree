@@ -87,7 +87,7 @@ abstract class BaseTreeClassGenerator extends ClassGenerator
                 ->setType('string')
                 ->setStatic()
                 ->setProtected();
-        } else if ($this->isCreatingPageTree()) {
+        } elseif ($this->isCreatingPageTree()) {
             // Set default navigation icon
             $class->addProperty('navigationIcon', 'heroicon-o-document')
                 ->setType('\BackedEnum|string|null')
