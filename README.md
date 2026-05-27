@@ -7,7 +7,7 @@
 
 A nestable drag-and-drop tree component for [Filament](https://filamentphp.com) v4 and v5. Supports Eloquent models (including [`kalnoy/nestedset`](https://github.com/lazychaser/laravel-nestedset)), static record arrays, per-node actions, multi-tree pages, cross-tree drag-and-drop, lazy loading, and async child loading.
 
-> **Example usage** — see the [fixture pages](tests/fixtures/Pages) in this repository.
+> **Example usage** — see the [demo application](https://filament-cms-website-demo.solutionforest.net/admin) and the ready-to-run [fixture pages](tests/fixtures/Pages) in this repository.
 
 ![Basic Tree](./assets/01-basic-tree.png)
 
